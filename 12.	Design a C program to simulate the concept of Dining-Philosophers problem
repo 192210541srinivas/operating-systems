@@ -1,0 +1,23 @@
+int main() {
+    int i;
+    int ids[NUM_PHILOSOPHERS];
+
+    for (i = 0; i < NUM_PHILOSOPHERS; i++) {
+        sem_init(&forks[i], 0, 1);
+    }
+
+    for (i = 0; i < NUM_PHILOSOPHERS; i++) {
+        ids[i] = i;
+        pthread_create(&philosophers[i], NULL, philosopher, &ids[i]);
+    }
+
+    for (i = 0; i < NUM_PHILOSOPHERS; i++) {
+        pthread_join(philosophers[i], NULL);
+    }
+
+    for (i = 0; i < NUM_PHILOSOPHERS; i++) {
+        sem_destroy(&forks[i]);
+    }
+
+    return 0;
+}
