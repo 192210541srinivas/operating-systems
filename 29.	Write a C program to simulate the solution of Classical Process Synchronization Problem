@@ -1,0 +1,88 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <unistd.h>
+
+#define BUFFER_SIZE 5
+#define NUM_ITEMS 10
+
+int buffer[BUFFER_SIZE];
+int in = 0;
+int out = 0;
+int count = 0;
+
+pthread_mutex_t mutex;
+pthread_cond_t cond_prod, cond_cons;
+
+void *producer(void *arg);
+void *consumer(void *arg);
+
+int main() {
+    pthread_t prod_tid, cons_tid;
+
+    pthread_mutex_init(&mutex, NULL);
+    pthread_cond_init(&cond_prod, NULL);
+    pthread_cond_init(&cond_cons, NULL);
+
+    pthread_create(&prod_tid, NULL, producer, NULL);
+    pthread_create(&cons_tid, NULL, consumer, NULL);
+
+    pthread_join(prod_tid, NULL);
+    pthread_join(cons_tid, NULL);
+
+    pthread_mutex_destroy(&mutex);
+    pthread_cond_destroy(&cond_prod);
+    pthread_cond_destroy(&cond_cons);
+
+    return 0;
+}
+
+void *producer(void *arg) {
+    int produced = 0;
+
+    while (produced < NUM_ITEMS) {
+        pthread_mutex_lock(&mutex);
+
+        while (count == BUFFER_SIZE) {
+            pthread_cond_wait(&cond_prod, &mutex);
+        }
+
+        buffer[in] = produced;
+        printf("Produced item %d\n", produced);
+        produced++;
+        in = (in + 1) % BUFFER_SIZE;
+        count++;
+
+        pthread_cond_signal(&cond_cons);
+        pthread_mutex_unlock(&mutex);
+
+        usleep(rand() % 1000000);
+    }
+
+    pthread_exit(NULL);
+}
+
+void *consumer(void *arg) {
+    int consumed = 0;
+
+    while (consumed < NUM_ITEMS) {
+        pthread_mutex_lock(&mutex);
+
+        while (count == 0) {
+            pthread_cond_wait(&cond_cons, &mutex);
+        }
+
+        int item = buffer[out];
+        printf("Consumed item %d\n", item);
+        consumed++;
+        out = (out + 1) % BUFFER_SIZE;
+        count--;
+
+        pthread_cond_signal(&cond_prod);
+        pthread_mutex_unlock(&mutex);
+
+        usleep(rand() % 1000000);
+    }
+
+    pthread_exit(NULL);
+}
