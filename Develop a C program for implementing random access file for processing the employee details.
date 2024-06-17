@@ -1,0 +1,65 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define FILENAME "employee.dat"
+#define MAX_RECORDS 100
+
+struct Employee {
+    int id;
+    char name[50];
+    float salary;
+};
+
+void displayMenu();
+void addRecord(FILE *fp);
+void displayRecords(FILE *fp);
+void updateRecord(FILE *fp);
+void deleteRecord(FILE *fp);
+void searchRecord(FILE *fp);
+
+int main() {
+    FILE *fp;
+    int choice;
+
+    fp = fopen(FILENAME, "rb+");
+
+    if (fp == NULL) {
+        fp = fopen(FILENAME, "wb+");
+        if (fp == NULL) {
+            printf("Cannot open file %s\n", FILENAME);
+            return 1;
+        }
+    }
+
+    while (1) {
+        displayMenu();
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                addRecord(fp);
+                break;
+            case 2:
+                displayRecords(fp);
+                break;
+            case 3:
+                updateRecord(fp);
+                break;
+            case 4:
+                deleteRecord(fp);
+                break;
+            case 5:
+                searchRecord(fp);
+                break;
+            case 6:
+                fclose(fp);
+                exit(0);
+            default:
+                printf("Invalid choice. Please enter a number between 1 and 6.\n");
+        }
+    }
+
+    return 0;
+}
