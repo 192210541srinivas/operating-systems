@@ -1,0 +1,91 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_BLOCKS 50
+#define MAX_PROCESSES 50
+
+struct MemoryBlock {
+    int id;       
+    int size;   
+    int allocated; 
+}struct Process {
+    int id;
+    int size;
+int block_id;  
+
+void initializeMemory(struct MemoryBlock memory[], int num_blocks);
+void initializeProcesses(struct Process processes[], int num_processes);
+void firstFit(struct MemoryBlock memory[], int num_blocks, struct Process processes[], int num_processes);
+void displayMemory(struct MemoryBlock memory[], int num_blocks);
+void displayProcesses(struct Process processes[], int num_processes);
+
+int main() {
+    struct MemoryBlock memory[MAX_BLOCKS];
+    struct Process processes[MAX_PROCESSES];
+    int num_blocks, num_processes;
+
+    printf("Enter number of memory blocks: ");
+    scanf("%d", &num_blocks);
+    printf("Enter number of processes: ");
+    scanf("%d", &num_processes);
+
+    initializeMemory(memory, num_blocks);
+    initializeProcesses(processes, num_processes);
+
+    firstFit(memory, num_blocks, processes, num_processes);
+
+    printf("\nFinal Memory Allocation:\n");
+    displayMemory(memory, num_blocks);
+
+    return 0;
+}
+
+void initializeMemory(struct MemoryBlock memory[], int num_blocks) {
+    int i;
+    for (i = 0; i < num_blocks; i++) {
+        memory[i].id = i + 1;
+        memory[i].size = 0;
+        memory[i].allocated = 0;
+    }
+}
+
+void initializeProcesses(struct Process processes[], int num_processes) {
+    int i;
+    for (i = 0; i < num_processes; i++) {
+        processes[i].id = i + 1;
+        printf("Enter size of process %d: ", processes[i].id);
+        scanf("%d", &processes[i].size);
+        processes[i].block_id = -1; 
+    }
+}
+
+void firstFit(struct MemoryBlock memory[], int num_blocks, struct Process processes[], int num_processes) {
+    int i, j;
+
+    for (i = 0; i < num_processes; i++) {
+        for (j = 0; j < num_blocks; j++) {
+            if (memory[j].allocated == 0 && memory[j].size >= processes[i].size) {
+                memory[j].size = processes[i].size;
+                memory[j].allocated = 1;
+                processes[i].block_id = memory[j].id;
+                break; 
+            }
+        }
+    }
+}
+
+void displayMemory(struct MemoryBlock memory[], int num_blocks) {
+    int i;
+    printf("Block ID\tSize\tAllocated\n");
+    for (i = 0; i < num_blocks; i++) {
+        printf("%d\t\t%d\t%d\n", memory[i].id, memory[i].size, memory[i].allocated);
+    }
+}
+
+void displayProcesses(struct Process processes[], int num_processes) {
+    int i;
+    printf("Process ID\tSize\tBlock ID\n");
+    for (i = 0; i < num_processes; i++) {
+        printf("%d\t\t%d\t%d\n", processes[i].id, processes[i].size, processes[i].block_id);
+    }
+}
