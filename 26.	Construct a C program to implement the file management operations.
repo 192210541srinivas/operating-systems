@@ -1,0 +1,58 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+void createFile(const char *filename);
+void writeFile(const char *filename);
+void readFile(const char *filename);
+
+int main() {
+    const char *filename = "example.txt";
+
+    createFile(filename);
+
+    writeFile(filename);
+
+    printf("\nReading from the file:\n");
+    readFile(filename);
+
+    return 0;
+}
+
+void createFile(const char *filename) {
+    FILE *file = fopen(filename, "w");
+    if (file == NULL) {
+        perror("Error creating file");
+        exit(EXIT_FAILURE);
+    }
+    fclose(file);
+    printf("File '%s' created successfully.\n", filename);
+}
+
+void writeFile(const char *filename) {
+    FILE *file = fopen(filename, "a");
+    if (file == NULL) {
+        perror("Error opening file for writing");
+        exit(EXIT_FAILURE);
+    }
+
+    char content[] = "Hello, World!\n";
+    fprintf(file, "%s", content);
+
+    fclose(file);
+    printf("Content written to file '%s'.\n", filename);
+}
+
+void readFile(const char *filename) {
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        perror("Error opening file for reading");
+        exit(EXIT_FAILURE);
+    }
+
+    char buffer[1024];
+    while (fgets(buffer, sizeof(buffer), file) != NULL) {
+        printf("%s", buffer);
+    }
+
+    fclose(file);
+}
