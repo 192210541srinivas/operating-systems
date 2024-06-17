@@ -1,0 +1,141 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MEMORY_SIZE 1000
+
+int memory[MEMORY_SIZE];
+
+void first_fit(int size);
+void best_fit(int size);
+void worst_fit(int size);
+void deallocate(int start, int size);
+void print_memory();
+
+int main() {
+    // Initialize memory (0 indicates free block)
+    for (int i = 0; i < MEMORY_SIZE; i++) {
+        memory[i] = 0;
+    }
+
+    // Simulate allocation and deallocation
+    printf("Initial Memory State:\n");
+    print_memory();
+
+    printf("\nFirst-Fit Allocation:\n");
+    first_fit(100);
+    first_fit(200);
+    first_fit(50);
+    print_memory();
+
+    printf("\nDeallocate 200 bytes from position 100:\n");
+    deallocate(100, 200);
+    print_memory();
+
+    printf("\nBest-Fit Allocation:\n");
+    best_fit(150);
+    print_memory();
+
+    printf("\nWorst-Fit Allocation:\n");
+    worst_fit(75);
+    print_memory();
+
+    return 0;
+}
+
+void first_fit(int size) {
+    for (int i = 0; i < MEMORY_SIZE; i++) {
+        int free = 1;
+        for (int j = 0; j < size; j++) {
+            if (memory[i + j] != 0) {
+                free = 0;
+                break;
+            }
+        }
+        if (free) {
+            for (int j = 0; j < size; j++) {
+                memory[i + j] = size;
+            }
+            printf("Allocated %d bytes at position %d using First-Fit\n", size, i);
+            return;
+        }
+    }
+    printf("Failed to allocate %d bytes using First-Fit\n", size);
+}
+
+void best_fit(int size) {
+    int best_start = -1;
+    int best_size = MEMORY_SIZE + 1;
+    
+    for (int i = 0; i < MEMORY_SIZE; i++) {
+        int free = 1;
+        int j;
+        for (j = 0; j < size; j++) {
+            if (i + j >= MEMORY_SIZE || memory[i + j] != 0) {
+                free = 0;
+                break;
+            }
+        }
+        if (free && j < best_size) {
+            best_start = i;
+            best_size = j;
+        }
+    }
+    
+    if (best_start != -1) {
+        for (int j = 0; j < size; j++) {
+            memory[best_start + j] = size;
+        }
+        printf("Allocated %d bytes at position %d using Best-Fit\n", size, best_start);
+    } else {
+        printf("Failed to allocate %d bytes using Best-Fit\n", size);
+    }
+}
+
+void worst_fit(int size) {
+    int worst_start = -1;
+    int worst_size = -1;
+    
+    for (int i = 0; i < MEMORY_SIZE; i++) {
+        int free = 1;
+        int j;
+        for (j = 0; j < size; j++) {
+            if (i + j >= MEMORY_SIZE || memory[i + j] != 0) {
+                free = 0;
+                break;
+            }
+        }
+        if (free && j > worst_size) {
+            worst_start = i;
+            worst_size = j;
+        }
+    }
+    
+    if (worst_start != -1) {
+        for (int j = 0; j < size; j++) {
+            memory[worst_start + j] = size;
+        }
+        printf("Allocated %d bytes at position %d using Worst-Fit\n", size, worst_start);
+    } else {
+        printf("Failed to allocate %d bytes using Worst-Fit\n", size);
+    }
+}
+
+void deallocate(int start, int size) {
+    for (int i = start; i < start + size; i++) {
+        if (i < MEMORY_SIZE) {
+            memory[i] = 0;
+        }
+    }
+    printf("Deallocated %d bytes from position %d\n", size, start);
+}
+
+void print_memory() {
+    for (int i = 0; i < MEMORY_SIZE; i++) {
+        if (memory[i] == 0) {
+            printf(".");
+        } else {
+            printf("%d", memory[i]);
+        }
+    }
+    printf("\n");
+}
